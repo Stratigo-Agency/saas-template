@@ -17,6 +17,13 @@ npm run install-all
 
 ### 2. Configure environment
 
+**Supabase** (local)
+```bash
+npm install supabase --save-dev
+npx supabase init
+```
+Then http://127.0.0.1:54321 is your SUPABASE_URL, and the Authentication Keys Publishable is your SUPABASE_ANON_KEY
+
 **Frontend** (`frontend/.env`):
 ```
 VITE_SUPABASE_URL=http://127.0.0.1:54321
@@ -30,20 +37,16 @@ ENVIRONMENT=development
 FRONTEND_URL=http://localhost:5173
 ```
 
-### 3. Start Supabase (local)
-```bash
-supabase start
-supabase status  # Get your anon key
-```
-
 ### 4. Run dev servers
 ```bash
+npx supabase start
 npm run dev
 ```
 
 - Frontend: http://localhost:5173
 - Backend: http://localhost:8000
 - API Docs: http://localhost:8000/api/v1/docs
+- Supabase(local): http://127.0.0.1:54321  
 
 ## License
 
