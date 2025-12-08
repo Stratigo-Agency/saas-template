@@ -33,8 +33,9 @@ This template provides everything you need to quickly launch a SaaS product:
 - **Development Setup**: Streamlined development with:
   - Concurrent frontend and backend servers
 
-- **AI Integration**: OpenAI Integration with Responses API & OpenAI Agents SDK
-  - Integrated with example tools, both for Responses API and OpenAI SDK. Enabling easy plugin of tools.
+- **Backend API**: FastAPI backend with:
+  - Sample endpoint template
+  - Swagger documentation at `/api/v1/docs`
 
 ## Getting Started
 
@@ -45,37 +46,28 @@ This template provides everything you need to quickly launch a SaaS product:
 - Python 3.8 or higher
 - pip (Python package installer)
 - Supabase account and project (for authentication)
-- Telegram bot (optional, for notifications)
-- API keys for AI providers (optional, for AI features)
 
 ### Supabase Setup
 
-1. Create a new project on [Supabase](https://supabase.com)
+1. Create a new project on [Supabase](https://supabase.com) or run locally with `supabase start`
 2. Enable Email Auth in Authentication settings
-3. Copy your project URL and anon key from the API settings
+3. Copy your project URL and anon key from the API settings (or run `supabase status` for local)
 
-### AI Setup (Optional)
-
-1. Get API keys for the AI providers you want to use:
-   - OpenAI API key from [OpenAI](https://platform.openai.com/api-keys)
+**Important**: The `VITE_SUPABASE_URL` should be the **API URL** (e.g., `http://127.0.0.1:54321` for local), NOT the PostgreSQL connection string.
 
 ### Environment Setup
 
 1. Create a `.env` file in the frontend directory with your Supabase credentials:
 ```
-VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_URL=http://127.0.0.1:54321
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 VITE_BACKEND_URL=http://127.0.0.1:8000
 ```
 
 2. Create a `.env` file in the backend directory with your configuration:
 ```
-# Telegram Bot Configuration (optional)
-TELEGRAM_BOT_TOKEN=your_telegram_bot_token
-GROUP_CHAT_ID=your_telegram_group_chat_id
-
-# AI API Keys (optional)
-OPENAI_API_KEY=your_openai_api_key
+ENVIRONMENT=development
+FRONTEND_URL=http://localhost:5173
 ```
 
 ### Installation
