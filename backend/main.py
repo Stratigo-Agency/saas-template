@@ -39,12 +39,8 @@ async def health_check():
     return HTMLResponse(status_code=200)
 
 # Import and include routers
-from routes.telegram_routes import router as telegram_router
-from routes.openai_route import router as openai_router
 from routes.sample_route import router as sample_router
 
-app.include_router(telegram_router, prefix="/telegram", tags=["Telegram"])
-app.include_router(openai_router, prefix="/openai", tags=["OpenAI"])
 app.include_router(sample_router, prefix="/sample", tags=["Sample"])
 
 if __name__ == "__main__":
