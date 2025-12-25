@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
-import AppSidebar from '@/components/AppSidebar.vue'
+import AppNavbar from '@/components/AppNavbar.vue'
 </script>
 
 <template>
-  <SidebarProvider>
-    <AppSidebar />
-    <main class="m-2 w-full">
-      <SidebarTrigger />
+  <div class="flex flex-col min-h-screen">
+    <AppNavbar />
+    <main class="flex-1 p-6">
       <RouterView />
     </main>
-  </SidebarProvider>
+  </div>
 </template>

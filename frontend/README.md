@@ -31,8 +31,8 @@ The application uses Supabase for authentication:
 ## Key Components
 
 - **HomeNavbar**: Navigation bar for the landing page with auth buttons
-- **AppView**: Main application layout with sidebar
-- **AppSidebar**: Navigation sidebar for authenticated users
+- **AppView**: Main application layout with navigation bar
+- **AppNavbar**: Navigation bar for authenticated users (replaces sidebar)
 - **DashboardView**: Main dashboard page for authenticated users
 - **ProfileView**: User profile management page
 - **LoginView**: User login page
@@ -100,7 +100,7 @@ npm run build
 
 ### Content
 
-- Modify navigation items in `src/components/AppSidebar.vue`
+- Modify navigation items in `src/components/AppNavbar.vue`
 - Customize dashboard in `src/views/DashboardView.vue`
 - Update login/register pages in `src/views/LoginView.vue` and `src/views/RegisterView.vue`
 
