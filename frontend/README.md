@@ -30,7 +30,6 @@ The application uses Supabase for authentication:
 
 ## Key Components
 
-- **HomeView**: Landing page with hero section and features
 - **HomeNavbar**: Navigation bar for the landing page with auth buttons
 - **AppView**: Main application layout with sidebar
 - **AppSidebar**: Navigation sidebar for authenticated users
@@ -101,9 +100,9 @@ npm run build
 
 ### Content
 
-- Update landing page content in `src/views/HomeView.vue`
 - Modify navigation items in `src/components/AppSidebar.vue`
 - Customize dashboard in `src/views/DashboardView.vue`
+- Update login/register pages in `src/views/LoginView.vue` and `src/views/RegisterView.vue`
 
 ### Routes
 

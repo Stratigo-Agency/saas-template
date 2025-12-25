@@ -5,7 +5,6 @@ import RegisterView from '@/views/RegisterView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import { useAuthStore } from '@/stores/auth'
 import AppView from '@/views/AppView.vue'
-import HomeView from '@/views/HomeView.vue'
 import DashboardView from '@/views/DashboardView.vue'
 
 const router = createRouter({
@@ -13,8 +12,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView
+      redirect: '/login'
     },
     {
       path: '/app',
