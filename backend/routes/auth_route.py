@@ -1,6 +1,6 @@
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Header, Body
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from controller.auth_controller import AuthController
 
 router = APIRouter()
@@ -19,10 +19,11 @@ class OAuthRequest(BaseModel):
     redirect_url: Optional[str] = None
 
 class UpdateProfileRequest(BaseModel):
+    model_config = ConfigDict(extra="allow")  # Allow additional fields
+    
     full_name: Optional[str] = None
     website: Optional[str] = None
     bio: Optional[str] = None
-    [key: str]: any  # Allow additional fields
 
 class AuthResponse(BaseModel):
     success: bool
@@ -118,4 +119,5 @@ async def update_user_profile(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 

@@ -34,9 +34,23 @@ To install and set up the project locally:
    ```
 
 3. **Set up environment variables:**
-   Create a `.env` file in the backend directory with your configuration:
+   Create a `.env` file in the backend directory with your configuration.
+   
+   For local Supabase development, get the JWT keys by running:
+   ```bash
+   npx supabase status --output json
    ```
    
+   Copy the `ANON_KEY` and `SERVICE_ROLE_KEY` values (these are JWT tokens starting with `eyJ`).
+   **Important**: Do NOT use the `SECRET_KEY` or `PUBLISHABLE_KEY` - those are CLI keys, not API keys.
+   
+   Example `.env` file:
+   ```env
+   ENVIRONMENT=development
+   FRONTEND_URL=http://localhost:5173
+   SUPABASE_URL=http://127.0.0.1:54321
+   SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+   SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
    ```
 
 4. **Run the development server:**
