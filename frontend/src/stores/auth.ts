@@ -1,14 +1,43 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { supabase } from '@/lib/supabase'
-import type { User } from '@supabase/supabase-js'
+import { apiClient } from '@/lib/api'
+
+interface User {
+  id: string
+  email?: string
+  user_metadata?: Record<string, any>
+  created_at?: string
+}
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
+  const accessToken = ref<string | null>(null)
   const loading = ref(true)
   const error = ref<string | null>(null)
 
-  const isAuthenticated = computed(() => !!user.value)
+  // Load token from localStorage on initialization
+  const loadToken = () => {
+    const token = localStorage.getItem('access_token')
+    if (token) {
+      accessToken.value = token
+      // Set token getter for API client
+      apiClient.setAuthTokenGetter(() => accessToken.value)
+    }
+  }
+
+  // Save token to localStorage
+  const saveToken = (token: string | null) => {
+    if (token) {
+      localStorage.setItem('access_token', token)
+      accessToken.value = token
+    } else {
+      localStorage.removeItem('access_token')
+      accessToken.value = null
+    }
+    apiClient.setAuthTokenGetter(() => accessToken.value)
+  }
+
+  const isAuthenticated = computed(() => !!user.value && !!accessToken.value)
 
   // Initialize auth state
   const initialize = async () => {
@@ -16,28 +45,25 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     try {
-      // Check if user is already logged in
-      const { data } = await supabase.auth.getSession()
-      
-      if (data.session) {
-        user.value = data.session.user
-      }
+      // Load token from localStorage
+      loadToken()
 
-      // Set up auth state change listener
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        console.log('Auth state changed:', event)
-        if (session) {
-          user.value = session.user
-        } else if (event === 'SIGNED_OUT') {
+      // Check if user is already logged in
+      if (accessToken.value) {
+        const response = await apiClient.get('/auth/session')
+        if (response.success && response.user) {
+          user.value = response.user
+        } else {
+          // Token is invalid, clear it
+          saveToken(null)
           user.value = null
         }
-      })
-
-      // Return the subscription for cleanup if needed
-      return subscription
+      }
     } catch (err: any) {
       console.error('Failed to initialize auth:', err)
       error.value = err.message || 'Failed to initialize authentication'
+      saveToken(null)
+      user.value = null
     } finally {
       loading.value = false
     }
@@ -49,14 +75,18 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     try {
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password
-      })
+      const response = await apiClient.post('/auth/signup', { email, password })
 
-      if (signUpError) throw signUpError
+      if (!response.success) {
+        error.value = response.error || 'Sign up failed'
+        return { success: false, error: response.error }
+      }
+
+      if (response.user) {
+        user.value = response.user
+      }
       
-      return { success: true, data }
+      return { success: true, data: response }
     } catch (err: any) {
       console.error('Sign up failed:', err)
       error.value = err.message || 'Sign up failed'
@@ -72,15 +102,23 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     try {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      })
+      const response = await apiClient.post('/auth/signin', { email, password })
 
-      if (signInError) throw signInError
+      if (!response.success) {
+        error.value = response.error || 'Sign in failed'
+        return { success: false, error: response.error }
+      }
+
+      if (response.user) {
+        user.value = response.user
+      }
+
+      // Save access token if provided
+      if (response.session?.access_token) {
+        saveToken(response.session.access_token)
+      }
       
-      user.value = data.user
-      return { success: true, data }
+      return { success: true, data: response }
     } catch (err: any) {
       console.error('Sign in failed:', err)
       error.value = err.message || 'Sign in failed'
@@ -96,13 +134,21 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     try {
-      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
-        provider
+      const redirectUrl = `${window.location.origin}/auth/callback`
+      const response = await apiClient.post('/auth/oauth', { 
+        provider, 
+        redirect_url: redirectUrl 
       })
 
-      if (oauthError) throw oauthError
+      if (!response.success || !response.url) {
+        error.value = response.error || 'OAuth sign in failed'
+        return { success: false, error: response.error }
+      }
+
+      // Redirect to OAuth provider
+      window.location.href = response.url
       
-      return { success: true, data }
+      return { success: true, data: response }
     } catch (err: any) {
       console.error('OAuth sign in failed:', err)
       error.value = err.message || 'OAuth sign in failed'
@@ -118,35 +164,33 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
 
     try {
-      const { error: signOutError } = await supabase.auth.signOut()
-      
-      if (signOutError) throw signOutError
-      
-      user.value = null
-      return { success: true }
+      await apiClient.post('/auth/signout')
     } catch (err: any) {
       console.error('Sign out failed:', err)
-      error.value = err.message || 'Sign out failed'
-      return { success: false, error: err.message }
     } finally {
+      // Clear local state regardless of response
+      user.value = null
+      saveToken(null)
       loading.value = false
     }
+    
+    return { success: true }
   }
 
   // Get user profile
   const getUserProfile = async () => {
-    if (!user.value) return null
+    if (!accessToken.value) return null
 
     try {
-      // Return the user data directly from the auth store
-      // as Supabase already provides user metadata
-      return {
-        id: user.value.id,
-        email: user.value.email,
-        full_name: user.value.user_metadata?.full_name || '',
-        created_at: user.value.created_at,
-        ...user.value.user_metadata
+      const response = await apiClient.get('/auth/profile')
+      
+      if (response.success) {
+        // The profile data is spread into the response object
+        const { success, error, ...profile } = response
+        return Object.keys(profile).length > 0 ? profile : null
       }
+      
+      return null
     } catch (err: any) {
       console.error('Failed to get user profile:', err)
       return null
@@ -155,23 +199,18 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Update user profile
   const updateUserProfile = async (profile: any) => {
-    if (!user.value) return { success: false, error: 'Not authenticated' }
+    if (!accessToken.value) return { success: false, error: 'Not authenticated' }
 
     try {
-      // Update the user metadata using Supabase Auth API
-      const { data, error } = await supabase.auth.updateUser({
-        data: {
-          ...user.value.user_metadata,
-          ...profile,
-          updated_at: new Date().toISOString()
-        }
-      })
+      const response = await apiClient.put('/auth/profile', profile)
 
-      if (error) throw error
-      
+      if (!response.success) {
+        return { success: false, error: response.error }
+      }
+
       // Update the local user state
-      if (data && data.user) {
-        user.value = data.user
+      if (response.user) {
+        user.value = response.user
       }
       
       return { success: true }
@@ -180,6 +219,12 @@ export const useAuthStore = defineStore('auth', () => {
       return { success: false, error: err.message }
     }
   }
+
+  // Initialize token getter on store creation
+  loadToken()
+
+  // Initialize token getter on store creation
+  loadToken()
 
   return {
     user,

@@ -1,0 +1,15 @@
+You are going to be implementing features.
+
+for backend:
+/controller contain all reusable logics (accessing 3rd party api, database, etc)
+/lib combine controller functions to cater it to the endpoint used by frontend
+/routes call services and expose it as an endpoint
+
+for frontend:
+/lib contain all utility function to access the endpoints from backend
+/hooks contain all logic related to the app (such as calling /lib function and processing it for UI used)
+/stores contain pinia that is accessible through the whole frontend
+/views are vue component for managing views. it should only contain router-view logic and have /containers inside
+/containers contain all hooks call, utility functions for UI use. it also contain components
+/components are vue components that are displayed in pages
+/types contain the typescript interface/type for the app

@@ -40,8 +40,10 @@ async def health_check():
 
 # Import and include routers
 from routes.sample_route import router as sample_router
+from routes.auth_route import router as auth_router
 
 app.include_router(sample_router, prefix="/sample", tags=["Sample"])
+app.include_router(auth_router, prefix="/auth", tags=["Auth"])
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))  # Digital Ocean often uses port 8000

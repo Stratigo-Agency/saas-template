@@ -36,16 +36,7 @@ To install and set up the project locally:
 3. **Set up environment variables:**
    Create a `.env` file in the backend directory with your configuration:
    ```
-   # Environment configuration
-   ENVIRONMENT=development
-   FRONTEND_URL=http://localhost:3000
    
-   # Add your API keys for language models
-   OPENAI_API_KEY=your_openai_key_here
-   
-   # Telegram configuration (if using)
-   TELEGRAM_BOT_TOKEN=your_telegram_bot_token
-   TELEGRAM_CHAT_ID=your_telegram_chat_id
    ```
 
 4. **Run the development server:**
